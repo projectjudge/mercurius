@@ -1168,8 +1168,9 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
           }
         `
         }
-      }).then(() => {
+      }).then((data) => {
         console.log('---- injected')
+        console.log(data)
       })
 
       client.on('end', () => console.log('---- end'))
