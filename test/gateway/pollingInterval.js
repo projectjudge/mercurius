@@ -910,7 +910,7 @@ test('Polling schemas (should properly regenerate the schema when a downstream s
   })
 })
 
-test('Polling schemas (subscriptions should be handled)', async (t) => {
+test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, async (t) => {
   try {
     t.plan(12)
 
@@ -1156,6 +1156,7 @@ test('Polling schemas (subscriptions should be handled)', async (t) => {
       const [chunk] = await once(client2, 'data')
       const data = JSON.parse(chunk)
       t.equal(data.type, 'connection_ack')
+      t.comment('---- ack')
 
       gateway.inject({
         method: 'POST',
@@ -1167,12 +1168,18 @@ test('Polling schemas (subscriptions should be handled)', async (t) => {
           }
         `
         }
+      }).then(() => {
+        t.comment('---- injected')
       })
+
+      t.comment('pre once ----')
     }
 
     {
       const [chunk] = await once(client2, 'data')
+      t.comment('post once ----')
       const data = JSON.parse(chunk)
+      t.comment('parse ----')
       t.equal(data.type, 'data')
       t.equal(data.id, 2)
 
