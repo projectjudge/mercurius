@@ -911,6 +911,8 @@ test('Polling schemas (should properly regenerate the schema when a downstream s
 })
 
 test('Polling schemas (subscriptions should be handled)', async (t) => {
+  t.plan(12)
+
   const clock = FakeTimers.install({
     shouldAdvanceTime: true,
     advanceTimeDelta: 40
@@ -1016,48 +1018,44 @@ test('Polling schemas (subscriptions should be handled)', async (t) => {
   t.teardown(client.destroy.bind(client))
   client.setEncoding('utf8')
 
-  process.nextTick(() => {
-    client.write(
-      JSON.stringify({
-        type: 'connection_init'
-      })
-    )
+  client.write(
+    JSON.stringify({
+      type: 'connection_init'
+    })
+  )
 
-    client.write(
-      JSON.stringify({
-        id: 1,
-        type: 'start',
-        payload: {
-          query: `
-            subscription {
-              updatedUser {
-                id
-                name
-              }
+  client.write(
+    JSON.stringify({
+      id: 1,
+      type: 'start',
+      payload: {
+        query: `
+          subscription {
+            updatedUser {
+              id
+              name
             }
-          `
-        }
-      })
-    )
-  })
+          }
+        `
+      }
+    })
+  )
 
   {
     const [chunk] = await once(client, 'data')
     const data = JSON.parse(chunk)
     t.equal(data.type, 'connection_ack')
 
-    process.nextTick(() => {
-      gateway.inject({
-        method: 'POST',
-        url: '/graphql',
-        body: {
-          query: `
-            mutation {
-              triggerUser
-            }
-          `
-        }
-      })
+    gateway.inject({
+      method: 'POST',
+      url: '/graphql',
+      body: {
+        query: `
+          mutation {
+            triggerUser
+          }
+        `
+      }
     })
   }
 
@@ -1129,49 +1127,45 @@ test('Polling schemas (subscriptions should be handled)', async (t) => {
   t.teardown(client2.destroy.bind(client2))
   client2.setEncoding('utf8')
 
-  process.nextTick(() => {
-    client2.write(
-      JSON.stringify({
-        type: 'connection_init'
-      })
-    )
+  client2.write(
+    JSON.stringify({
+      type: 'connection_init'
+    })
+  )
 
-    client2.write(
-      JSON.stringify({
-        id: 2,
-        type: 'start',
-        payload: {
-          query: `
-            subscription {
-              updatedUser {
-                id
-                name
-                lastName
-              }
+  client2.write(
+    JSON.stringify({
+      id: 2,
+      type: 'start',
+      payload: {
+        query: `
+          subscription {
+            updatedUser {
+              id
+              name
+              lastName
             }
-          `
-        }
-      })
-    )
-  })
+          }
+        `
+      }
+    })
+  )
 
   {
     const [chunk] = await once(client2, 'data')
     const data = JSON.parse(chunk)
     t.equal(data.type, 'connection_ack')
 
-    process.nextTick(() => {
-      gateway.inject({
-        method: 'POST',
-        url: '/graphql',
-        body: {
-          query: `
-            mutation {
-              triggerUser
-            }
-          `
-        }
-      })
+    gateway.inject({
+      method: 'POST',
+      url: '/graphql',
+      body: {
+        query: `
+          mutation {
+            triggerUser
+          }
+        `
+      }
     })
   }
 
