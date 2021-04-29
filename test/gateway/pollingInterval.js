@@ -1156,7 +1156,7 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
       const [chunk] = await once(client2, 'data')
       const data = JSON.parse(chunk)
       t.equal(data.type, 'connection_ack')
-      t.comment('---- ack')
+      console.log('---- ack')
 
       gateway.inject({
         method: 'POST',
@@ -1169,17 +1169,17 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
         `
         }
       }).then(() => {
-        t.comment('---- injected')
+        console.log('---- injected')
       })
 
-      t.comment('pre once ----')
+      console.log('pre once ----')
     }
 
     {
       const [chunk] = await once(client2, 'data')
-      t.comment('post once ----')
+      console.log('post once ----')
       const data = JSON.parse(chunk)
-      t.comment('parse ----')
+      console.log('parse ----')
       t.equal(data.type, 'data')
       t.equal(data.id, 2)
 
