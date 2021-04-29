@@ -1172,6 +1172,13 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
         console.log('---- injected')
       })
 
+      client.on('end', () => console.log('---- end'))
+      client.on('close', () => console.log('---- close'))
+      client.on('error', () => console.log('---- error'))
+      client2.on('end', () => console.log('---- end'))
+      client2.on('close', () => console.log('---- close'))
+      client2.on('error', () => console.log('---- error'))
+      client2.on('data', (chunk) => console.log('---- data', chunk))
       console.log('pre once ----')
     }
 
