@@ -938,7 +938,7 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
               updatedUser: user
             }
           })
-
+          console.log('--------- published in mutation')
           return true
         }
       },
@@ -1156,7 +1156,6 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
       const [chunk] = await once(client2, 'data')
       const data = JSON.parse(chunk)
       t.equal(data.type, 'connection_ack')
-      console.log('---- ack')
 
       gateway.inject({
         method: 'POST',
@@ -1169,25 +1168,14 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
         `
         }
       }).then((data) => {
-        console.log('---- injected')
-        console.log(data)
+        console.log('---- injected', data.payload)
       })
-
-      client.on('end', () => console.log('---- end'))
-      client.on('close', () => console.log('---- close'))
-      client.on('error', () => console.log('---- error'))
-      client2.on('end', () => console.log('---- end'))
-      client2.on('close', () => console.log('---- close'))
-      client2.on('error', () => console.log('---- error'))
-      client2.on('data', (chunk) => console.log('---- data', chunk))
-      console.log('pre once ----')
     }
 
     {
+      console.log('---- pre once')
       const [chunk] = await once(client2, 'data')
-      console.log('post once ----')
       const data = JSON.parse(chunk)
-      console.log('parse ----')
       t.equal(data.type, 'data')
       t.equal(data.id, 2)
 
@@ -1206,7 +1194,6 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
     await gateway.close()
     await userService.close()
   } catch (err) {
-    console.log(err)
     t.fail(err)
   }
 })
