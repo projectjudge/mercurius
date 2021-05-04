@@ -1134,28 +1134,28 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
       })
     )
 
-    client2.write(
-      JSON.stringify({
-        id: 2,
-        type: 'start',
-        payload: {
-          query: `
-          subscription {
-            updatedUser {
-              id
-              name
-              lastName
-            }
-          }
-        `
-        }
-      })
-    )
-
     {
       const [chunk] = await once(client2, 'data')
       const data = JSON.parse(chunk)
       t.equal(data.type, 'connection_ack')
+
+      client2.write(
+        JSON.stringify({
+          id: 2,
+          type: 'start',
+          payload: {
+            query: `
+            subscription {
+              updatedUser {
+                id
+                name
+                lastName
+              }
+            }
+          `
+          }
+        })
+      )
 
       gateway.inject({
         method: 'POST',
