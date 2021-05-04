@@ -938,7 +938,6 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
               updatedUser: user
             }
           })
-          console.log('--------- published in mutation')
           return true
         }
       },
@@ -1025,27 +1024,27 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
       })
     )
 
-    client.write(
-      JSON.stringify({
-        id: 1,
-        type: 'start',
-        payload: {
-          query: `
-          subscription {
-            updatedUser {
-              id
-              name
-            }
-          }
-        `
-        }
-      })
-    )
-
     {
       const [chunk] = await once(client, 'data')
       const data = JSON.parse(chunk)
       t.equal(data.type, 'connection_ack')
+
+      client.write(
+        JSON.stringify({
+          id: 1,
+          type: 'start',
+          payload: {
+            query: `
+            subscription {
+              updatedUser {
+                id
+                name
+              }
+            }
+          `
+          }
+        })
+      )
 
       gateway.inject({
         method: 'POST',
@@ -1167,13 +1166,10 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
           }
         `
         }
-      }).then((data) => {
-        console.log('---- injected', data.payload)
       })
     }
 
     {
-      console.log('---- pre once')
       const [chunk] = await once(client2, 'data')
       const data = JSON.parse(chunk)
       t.equal(data.type, 'data')
