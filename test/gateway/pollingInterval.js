@@ -1008,6 +1008,7 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
     'graphql-ws'
   )
 
+  // 1
   t.equal(ws.readyState, WebSocket.CONNECTING)
 
   const client = WebSocket.createWebSocketStream(ws, {
@@ -1017,35 +1018,34 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
   t.teardown(client.destroy.bind(client))
   client.setEncoding('utf8')
 
-  process.nextTick(() => {
-    client.write(
-      JSON.stringify({
-        type: 'connection_init'
-      })
-    )
-  })
+  client.write(
+    JSON.stringify({
+      type: 'connection_init'
+    })
+  )
+
+  client.write(
+    JSON.stringify({
+      id: 1,
+      type: 'start',
+      payload: {
+        query: `
+          subscription {
+            updatedUser {
+              id
+              name
+            }
+          }
+        `
+      }
+    })
+  )
 
   {
     const [chunk] = await once(client, 'data')
     const data = JSON.parse(chunk)
+    // 2
     t.equal(data.type, 'connection_ack')
-
-    client.write(
-      JSON.stringify({
-        id: 1,
-        type: 'start',
-        payload: {
-          query: `
-            subscription {
-              updatedUser {
-                id
-                name
-              }
-            }
-          `
-        }
-      })
-    )
 
     process.nextTick(() => {
       gateway.inject({
