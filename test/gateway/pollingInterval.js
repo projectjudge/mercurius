@@ -1147,14 +1147,14 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
         type: 'start',
         payload: {
           query: `
-              subscription {
-                updatedUser {
-                  id
-                  name
-                  lastName
-                }
+            subscription {
+              updatedUser {
+                id
+                name
+                lastName
               }
-            `
+            }
+          `
         }
       })
     )
@@ -1175,6 +1175,7 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
   }
 
   {
+    console.log('--- preOnce')
     const [chunk] = await once(client2, 'data')
     const data = JSON.parse(chunk)
     t.equal(data.type, 'data')
