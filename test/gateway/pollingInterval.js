@@ -1130,6 +1130,7 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
   t.teardown(client2.destroy.bind(client2))
   client2.setEncoding('utf8')
 
+  console.log('-------------- BEFORE', gateway.graphql.gateway.serviceMap.user.client.ready)
   client2.write(
     JSON.stringify({
       type: 'connection_init'
@@ -1140,6 +1141,8 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
     const [chunk] = await once(client2, 'data')
     const data = JSON.parse(chunk)
     t.equal(data.type, 'connection_ack')
+
+    console.log('-------------- AFTER', gateway.graphql.gateway.serviceMap.user.client.ready)
 
     client2.write(
       JSON.stringify({
@@ -1170,7 +1173,7 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
             }
           `
         }
-      })
+      }).then(data => console.log(data.body)).catch(console.log)
     })
   }
 
