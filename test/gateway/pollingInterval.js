@@ -1047,16 +1047,18 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
       })
     )
 
-    gateway.inject({
-      method: 'POST',
-      url: '/graphql',
-      body: {
-        query: `
-          mutation {
-            triggerUser
-          }
-        `
-      }
+    process.nextTick(() => {
+      gateway.inject({
+        method: 'POST',
+        url: '/graphql',
+        body: {
+          query: `
+            mutation {
+              triggerUser
+            }
+          `
+        }
+      })
     })
   }
 
