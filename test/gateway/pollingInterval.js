@@ -1008,7 +1008,6 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
     'graphql-ws'
   )
 
-  // 1
   t.equal(ws.readyState, WebSocket.CONNECTING)
 
   const client = WebSocket.createWebSocketStream(ws, {
@@ -1024,41 +1023,43 @@ test('Polling schemas (subscriptions should be handled)', { diagnostic: true }, 
     })
   )
 
-  client.write(
-    JSON.stringify({
-      id: 1,
-      type: 'start',
-      payload: {
-        query: `
-          subscription {
-            updatedUser {
-              id
-              name
-            }
-          }
-        `
-      }
-    })
-  )
-
   {
     const [chunk] = await once(client, 'data')
     const data = JSON.parse(chunk)
-    // 2
     t.equal(data.type, 'connection_ack')
 
-    process.nextTick(() => {
-      gateway.inject({
-        method: 'POST',
-        url: '/graphql',
-        body: {
+    client.write(
+      JSON.stringify({
+        id: 1,
+        type: 'start',
+        payload: {
           query: `
-            mutation {
-              triggerUser
+            subscription {
+              updatedUser {
+                id
+                name
+              }
             }
           `
         }
       })
+    )
+
+    // We need the event loop to spin twice
+    // for the subscription to be created
+    await immediate()
+    await immediate()
+
+    gateway.inject({
+      method: 'POST',
+      url: '/graphql',
+      body: {
+        query: `
+          mutation {
+            triggerUser
+          }
+        `
+      }
     })
   }
 
